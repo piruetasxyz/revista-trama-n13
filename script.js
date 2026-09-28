@@ -1,6 +1,7 @@
 // url de la aplicación web de apps script (termina en /exec).
 // si está vacía o falla, se usa datos.json como respaldo.
-const URL_DATOS = '';
+const URL_DATOS =
+  'https://script.google.com/macros/s/AKfycbxqWYfLyrvu9m4GU6C4HWo9CfF0nmVYJaQqlo1qDYt9MEdbyKAwjbU3mBEpMQwjfFPr/exec';
 const RUTA_RESPALDO = 'datos.json';
 
 // cada persona principal elige a una persona nueva por tipo
