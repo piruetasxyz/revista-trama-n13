@@ -15,7 +15,8 @@ function doGet() {
   const indice = (columna) => encabezados.indexOf(columna);
 
   const personas = filas
-    .filter((fila) => fila[indice('id')].trim() !== '')
+    // filas sin nombre no se publican; las celdas vacías de cada tipo tampoco
+    .filter((fila) => fila[indice('nombre')].trim() !== '')
     .map((fila) => ({
       id: fila[indice('id')].trim(),
       nombre: fila[indice('nombre')].trim(),

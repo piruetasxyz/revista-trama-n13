@@ -3,8 +3,6 @@
 const URL_DATOS = '';
 const RUTA_RESPALDO = 'datos.json';
 
-const PERSONAS_ESPERADAS = 15;
-
 // cada persona principal elige a una persona nueva por tipo
 const TIPOS_CONEXION = [
   { tipo: 'ideas', color: '#e4572e' },
@@ -39,12 +37,10 @@ function crearPersona(datos) {
   return { ...datos, vx: 0, vy: 0, semilla: random(1000) };
 }
 
-// arma personas principales, personas elegidas y conexiones, avisando en consola de cualquier dato raro
+// arma personas principales, personas elegidas y conexiones.
+// solo se dibuja quien tiene nombre: filas o celdas vacías no generan blob.
 function construir(datos) {
-  const filas = datos.personas || [];
-  if (filas.length !== PERSONAS_ESPERADAS) {
-    console.warn(`se esperaban ${PERSONAS_ESPERADAS} personas principales, llegaron ${filas.length}`);
-  }
+  const filas = (datos.personas || []).filter((fila) => String(fila.nombre || '').trim());
 
   personas = [];
   conexiones = [];
@@ -54,8 +50,8 @@ function construir(datos) {
     const angulo = (TWO_PI * i) / filas.length;
     const distancia = min(width, height) * 0.32;
     const principal = crearPersona({
-      id: String(fila.id).trim(),
-      nombre: fila.nombre,
+      id: String(fila.id ?? i).trim(),
+      nombre: String(fila.nombre).trim(),
       principal: true,
       color: COLOR_PRINCIPAL,
       x: width / 2 + cos(angulo) * distancia,
@@ -67,11 +63,8 @@ function construir(datos) {
     const elegidas = fila.conexiones || [];
     TIPOS_CONEXION.forEach(({ tipo, color }, indiceTipo) => {
       const elegida = elegidas.find((conexion) => conexion.tipo === tipo);
-      const nombre = elegida ? String(elegida.nombre).trim() : '';
-      if (!nombre) {
-        console.warn(`${fila.nombre} no tiene ${tipo}`);
-        return;
-      }
+      const nombre = elegida ? String(elegida.nombre || '').trim() : '';
+      if (!nombre) return;
       if (nombresVistos.has(nombre)) {
         console.warn(`${nombre} aparece más de una vez; se dibuja como personas distintas`);
       }
@@ -92,11 +85,6 @@ function construir(datos) {
       conexiones.push({ origen: principal, destino: elegidaPersona, color });
     });
   });
-
-  const esperadas = PERSONAS_ESPERADAS * TIPOS_CONEXION.length;
-  if (conexiones.length !== esperadas) {
-    console.warn(`se esperaban ${esperadas} personas elegidas, hay ${conexiones.length}`);
-  }
 }
 
 function radioDe(persona) {

@@ -6,7 +6,7 @@ visualización de 60 personas como blobs flotantes: 15 personas principales, y c
 
 - `index.html`: página con el canvas a pantalla completa.
 - `script.js`: carga de datos, validación y dibujo.
-- `datos.json`: datos de respaldo, se usan si la hoja no responde.
+- `datos.json`: datos de respaldo, se usan si la hoja no responde. está vacío a propósito para no mostrar datos de ejemplo; se puede reemplazar por una copia de la respuesta de la url `/exec`.
 - `apps-script/Codigo.gs`: script para exponer la hoja de cálculo privada como json.
 
 ## hoja de cálculo
@@ -18,6 +18,7 @@ una fila por persona (idealmente en una pestaña llamada `personas`; si no exist
 | 1 | Pedro Silva | idea01 | proceso01 | resultado01 |
 
 - `ideas`, `procesos` y `resultados` contienen el nombre de la persona elegida para cada tipo.
+- si una celda está vacía, no se dibuja nada: solo aparecen blobs con nombre. lo mismo para filas sin `nombre`.
 - cada persona elegida se dibuja como un blob pequeño alrededor de quien la eligió, con el color de su tipo (ver `TIPOS_CONEXION` en `script.js`).
 - los nombres de las personas elegidas aparecen al pasar el mouse por su grupo; para mostrarlos siempre, cambiar `MOSTRAR_TODOS_LOS_NOMBRES` a `true`.
 - la hoja queda privada: solo quienes tienen acceso pueden editarla.
