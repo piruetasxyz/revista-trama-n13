@@ -5,19 +5,21 @@ const RUTA_RESPALDO = 'datos.json';
 
 const PERSONAS_ESPERADAS = 15;
 
-// cada persona elige a una persona por tipo; el orden define la curvatura de cada arco
+// cada persona principal elige a una persona nueva por tipo
 const TIPOS_CONEXION = [
   { tipo: 'ideas', color: '#e4572e' },
   { tipo: 'procesos', color: '#1b998b' },
   { tipo: 'resultados', color: '#3a5ba0' },
 ];
-const COLOR_BLOB = '#2b2b2b';
+const COLOR_PRINCIPAL = '#2b2b2b';
 const COLOR_FONDO = '#f4f1ea';
+// si es false, los nombres de las personas elegidas solo aparecen al pasar el mouse por su grupo
+const MOSTRAR_TODOS_LOS_NOMBRES = false;
 
 let personas = [];
 let conexiones = [];
 let radio = 30;
-let personaActiva = null;
+let grupoActivo = null;
 
 async function cargarDatos() {
   if (URL_DATOS) {
@@ -33,116 +35,131 @@ async function cargarDatos() {
   return respuesta.json();
 }
 
-// arma personas y conexiones, avisando en consola de cualquier dato raro
+function crearPersona(datos) {
+  return { ...datos, vx: 0, vy: 0, semilla: random(1000) };
+}
+
+// arma personas principales, personas elegidas y conexiones, avisando en consola de cualquier dato raro
 function construir(datos) {
   const filas = datos.personas || [];
   if (filas.length !== PERSONAS_ESPERADAS) {
-    console.warn(`se esperaban ${PERSONAS_ESPERADAS} personas, llegaron ${filas.length}`);
+    console.warn(`se esperaban ${PERSONAS_ESPERADAS} personas principales, llegaron ${filas.length}`);
   }
 
-  personas = filas.map((fila, i) => {
+  personas = [];
+  conexiones = [];
+  const nombresVistos = new Set();
+
+  filas.forEach((fila, i) => {
     const angulo = (TWO_PI * i) / filas.length;
-    const distancia = min(width, height) * 0.3;
-    return {
+    const distancia = min(width, height) * 0.32;
+    const principal = crearPersona({
       id: String(fila.id).trim(),
       nombre: fila.nombre,
-      x: width / 2 + cos(angulo) * distancia + random(-20, 20),
-      y: height / 2 + sin(angulo) * distancia + random(-20, 20),
-      vx: 0,
-      vy: 0,
-      semilla: random(1000),
-    };
-  });
+      principal: true,
+      color: COLOR_PRINCIPAL,
+      x: width / 2 + cos(angulo) * distancia,
+      y: height / 2 + sin(angulo) * distancia,
+    });
+    principal.grupo = principal;
+    personas.push(principal);
 
-  const porId = new Map(personas.map((persona) => [persona.id, persona]));
-  conexiones = [];
-
-  for (const fila of filas) {
-    const origen = porId.get(String(fila.id).trim());
     const elegidas = fila.conexiones || [];
-    for (const [indiceTipo, { tipo, color }] of TIPOS_CONEXION.entries()) {
+    TIPOS_CONEXION.forEach(({ tipo, color }, indiceTipo) => {
       const elegida = elegidas.find((conexion) => conexion.tipo === tipo);
-      const idDestino = elegida ? String(elegida.id).trim() : '';
-      const destino = porId.get(idDestino);
-      if (!idDestino) {
-        console.warn(`${fila.id} no tiene ${tipo}`);
-      } else if (!destino) {
-        console.warn(`${fila.id} tiene en ${tipo} un id inexistente: ${idDestino}`);
-      } else if (destino === origen) {
-        console.warn(`${fila.id} se eligió a sí misma en ${tipo}`);
-      } else {
-        conexiones.push({ origen, destino, tipo, color, indiceTipo });
+      const nombre = elegida ? String(elegida.nombre).trim() : '';
+      if (!nombre) {
+        console.warn(`${fila.nombre} no tiene ${tipo}`);
+        return;
       }
-    }
-  }
+      if (nombresVistos.has(nombre)) {
+        console.warn(`${nombre} aparece más de una vez; se dibuja como personas distintas`);
+      }
+      nombresVistos.add(nombre);
+
+      const anguloElegida = angulo + ((indiceTipo - 1) * TWO_PI) / 3;
+      const elegidaPersona = crearPersona({
+        id: `${principal.id}-${tipo}`,
+        nombre,
+        principal: false,
+        tipo,
+        color,
+        grupo: principal,
+        x: principal.x + cos(anguloElegida) * radio * 3,
+        y: principal.y + sin(anguloElegida) * radio * 3,
+      });
+      personas.push(elegidaPersona);
+      conexiones.push({ origen: principal, destino: elegidaPersona, color });
+    });
+  });
 
   const esperadas = PERSONAS_ESPERADAS * TIPOS_CONEXION.length;
   if (conexiones.length !== esperadas) {
-    console.warn(`se esperaban ${esperadas} conexiones, hay ${conexiones.length}`);
+    console.warn(`se esperaban ${esperadas} personas elegidas, hay ${conexiones.length}`);
   }
+}
+
+function radioDe(persona) {
+  return persona.principal ? radio : radio * 0.5;
 }
 
 async function setup() {
   createCanvas(windowWidth, windowHeight);
-  radio = min(width, height) * 0.04;
+  radio = min(width, height) * 0.035;
   textFont('system-ui, sans-serif');
   construir(await cargarDatos());
 }
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
-  radio = min(width, height) * 0.04;
+  radio = min(width, height) * 0.035;
 }
 
 function draw() {
   background(COLOR_FONDO);
   actualizar();
 
-  personaActiva = personas.find((persona) => dist(mouseX, mouseY, persona.x, persona.y) < radio) || null;
+  // se revisan primero las elegidas, que se dibujan encima
+  const bajoMouse = [...personas]
+    .reverse()
+    .find((persona) => dist(mouseX, mouseY, persona.x, persona.y) < radioDe(persona));
+  grupoActivo = bajoMouse ? bajoMouse.grupo : null;
 
   for (const conexion of conexiones) dibujarConexion(conexion);
   for (const persona of personas) dibujarBlob(persona);
   dibujarLeyenda();
 }
 
-function dibujarLeyenda() {
-  const tamano = max(12, radio * 0.35);
-  const x = 20;
-  let y = height - 20 - tamano * 1.6 * (TIPOS_CONEXION.length - 1);
-  textSize(tamano);
-  textAlign(LEFT, CENTER);
-  for (const { tipo, color } of TIPOS_CONEXION) {
-    stroke(color);
-    strokeWeight(3);
-    line(x, y, x + tamano * 2, y);
-    noStroke();
-    fill(30);
-    text(tipo, x + tamano * 2.6, y);
-    y += tamano * 1.6;
-  }
-}
-
-// flotación suave: deriva con ruido, repulsión entre blobs y resortes en las conexiones
+// flotación suave: deriva con ruido, repulsión entre blobs y resortes entre cada principal y sus elegidas
 function actualizar() {
   const t = millis() * 0.0002;
-  const largoReposo = min(width, height) * 0.3;
-  const separacionMinima = radio * 4;
+  const separacionGrupos = min(width, height) * 0.24;
+  const largoResorte = radio * 2.8;
 
   for (const persona of personas) {
     const angulo = noise(persona.semilla, t) * TWO_PI * 2;
-    persona.ax = cos(angulo) * 0.03 + (width / 2 - persona.x) * 0.00003;
-    persona.ay = sin(angulo) * 0.03 + (height / 2 - persona.y) * 0.00003;
+    const deriva = persona.principal ? 0.03 : 0.02;
+    persona.ax = cos(angulo) * deriva;
+    persona.ay = sin(angulo) * deriva;
+    if (persona.principal) {
+      persona.ax += (width / 2 - persona.x) * 0.00003;
+      persona.ay += (height / 2 - persona.y) * 0.00003;
+    }
   }
 
   for (let i = 0; i < personas.length; i++) {
     for (let j = i + 1; j < personas.length; j++) {
       const a = personas[i];
       const b = personas[j];
+      let separacion = (radioDe(a) + radioDe(b)) * 1.6;
+      if (a.principal && b.principal) separacion = separacionGrupos;
+      // hermanas del mismo grupo se reparten alrededor de su principal
+      else if (!a.principal && !b.principal && a.grupo === b.grupo) separacion = largoResorte * 1.6;
       const dx = b.x - a.x;
       const dy = b.y - a.y;
       const d = max(sqrt(dx * dx + dy * dy), 0.01);
-      if (d < separacionMinima) {
-        const empuje = ((separacionMinima - d) / separacionMinima) * 0.4;
+      if (d < separacion) {
+        const empuje = ((separacion - d) / separacion) * 0.3;
         a.ax -= (dx / d) * empuje;
         a.ay -= (dy / d) * empuje;
         b.ax += (dx / d) * empuje;
@@ -155,21 +172,21 @@ function actualizar() {
     const dx = destino.x - origen.x;
     const dy = destino.y - origen.y;
     const d = max(sqrt(dx * dx + dy * dy), 0.01);
-    const tension = (d - largoReposo) * 0.00015;
-    origen.ax += (dx / d) * tension;
-    origen.ay += (dy / d) * tension;
+    const tension = (d - largoResorte) * 0.002;
+    origen.ax += (dx / d) * tension * 0.2;
+    origen.ay += (dy / d) * tension * 0.2;
     destino.ax -= (dx / d) * tension;
     destino.ay -= (dy / d) * tension;
   }
 
-  const margen = radio * 1.5;
   for (const persona of personas) {
-    persona.vx = (persona.vx + persona.ax) * 0.96;
-    persona.vy = (persona.vy + persona.ay) * 0.96;
+    const margen = radioDe(persona) * 1.5;
+    persona.vx = (persona.vx + persona.ax) * 0.94;
+    persona.vy = (persona.vy + persona.ay) * 0.94;
     const rapidez = sqrt(persona.vx ** 2 + persona.vy ** 2);
-    if (rapidez > 1.2) {
-      persona.vx *= 1.2 / rapidez;
-      persona.vy *= 1.2 / rapidez;
+    if (rapidez > 1.5) {
+      persona.vx *= 1.5 / rapidez;
+      persona.vy *= 1.5 / rapidez;
     }
     persona.x = constrain(persona.x + persona.vx, margen, width - margen);
     persona.y = constrain(persona.y + persona.vy, margen, height - margen);
@@ -178,81 +195,54 @@ function actualizar() {
 
 function dibujarBlob(persona) {
   const t = millis() * 0.0006;
-  const atenuada = personaActiva && personaActiva !== persona && !estanConectadas(personaActiva, persona);
+  const activa = grupoActivo === persona.grupo;
+  const atenuada = grupoActivo && !activa;
+  const r0 = radioDe(persona) * (activa ? 1.12 : 1);
 
   noStroke();
-  const relleno = color(COLOR_BLOB);
-  relleno.setAlpha(atenuada ? 70 : 230);
+  const relleno = color(persona.color);
+  relleno.setAlpha(atenuada ? 60 : 230);
   fill(relleno);
 
   beginShape();
-  const puntos = 48;
+  const puntos = persona.principal ? 48 : 32;
   for (let i = 0; i < puntos; i++) {
     const angulo = (TWO_PI * i) / puntos;
     const deformacion = noise(persona.semilla + cos(angulo), persona.semilla + sin(angulo), t);
-    const r = radio * (0.8 + deformacion * 0.4) * (persona === personaActiva ? 1.15 : 1);
+    const r = r0 * (0.8 + deformacion * 0.4);
     vertex(persona.x + cos(angulo) * r, persona.y + sin(angulo) * r);
   }
   endShape(CLOSE);
 
-  fill(atenuada ? 160 : 30);
+  if (!persona.principal && !MOSTRAR_TODOS_LOS_NOMBRES && !activa) return;
+
+  fill(atenuada ? 170 : 30);
   textAlign(CENTER, TOP);
-  textSize(max(11, radio * 0.35));
-  text(persona.nombre, persona.x, persona.y + radio * 1.25);
+  textSize(max(persona.principal ? 12 : 10, radioDe(persona) * (persona.principal ? 0.4 : 0.6)));
+  text(persona.nombre, persona.x, persona.y + r0 * 1.15);
 }
 
-// curva hacia un lado según la dirección, así a→b y b→a quedan como arcos distintos;
-// cada tipo curva distinto, así una misma persona elegida en dos tipos no se superpone
-function dibujarConexion({ origen, destino, color: colorTipo, indiceTipo }) {
-  const dx = destino.x - origen.x;
-  const dy = destino.y - origen.y;
-  const d = sqrt(dx * dx + dy * dy);
-  if (d < radio * 2) return;
-
-  const curvatura = 0.1 + indiceTipo * 0.08;
-  const cx = (origen.x + destino.x) / 2 - dy * curvatura;
-  const cy = (origen.y + destino.y) / 2 + dx * curvatura;
-
-  // puntos de la bezier cuadrática, recortados fuera de los blobs
-  const puntos = [];
-  const pasos = 30;
-  for (let i = 0; i <= pasos; i++) {
-    const t = i / pasos;
-    const x = (1 - t) ** 2 * origen.x + 2 * (1 - t) * t * cx + t ** 2 * destino.x;
-    const y = (1 - t) ** 2 * origen.y + 2 * (1 - t) * t * cy + t ** 2 * destino.y;
-    if (dist(x, y, origen.x, origen.y) > radio && dist(x, y, destino.x, destino.y) > radio * 1.1) {
-      puntos.push([x, y]);
-    }
-  }
-  if (puntos.length < 2) return;
-
-  const involucrada = !personaActiva || origen === personaActiva || destino === personaActiva;
+function dibujarConexion({ origen, destino, color: colorTipo }) {
+  const activa = grupoActivo === origen;
   const trazo = color(colorTipo);
-  trazo.setAlpha(involucrada ? 180 : 25);
-
-  noFill();
+  trazo.setAlpha(grupoActivo && !activa ? 30 : 170);
   stroke(trazo);
-  strokeWeight(personaActiva && involucrada ? 2.5 : 1.5);
-  beginShape();
-  for (const [x, y] of puntos) vertex(x, y);
-  endShape();
-
-  // punta de flecha en el destino
-  const [x1, y1] = puntos[puntos.length - 2];
-  const [x2, y2] = puntos[puntos.length - 1];
-  const angulo = atan2(y2 - y1, x2 - x1);
-  const tamano = max(6, radio * 0.25);
-  noStroke();
-  fill(trazo);
-  push();
-  translate(x2, y2);
-  rotate(angulo);
-  triangle(0, 0, -tamano, -tamano * 0.5, -tamano, tamano * 0.5);
-  pop();
+  strokeWeight(activa ? 3 : 2);
+  line(origen.x, origen.y, destino.x, destino.y);
 }
 
-function estanConectadas(a, b) {
-  return conexiones.some(
-    ({ origen, destino }) => (origen === a && destino === b) || (origen === b && destino === a)
-  );
+function dibujarLeyenda() {
+  const tamano = max(12, radio * 0.4);
+  const x = 20;
+  let y = height - 20 - tamano * 1.6 * (TIPOS_CONEXION.length - 1);
+  textSize(tamano);
+  textAlign(LEFT, CENTER);
+  for (const { tipo, color } of TIPOS_CONEXION) {
+    noStroke();
+    fill(color);
+    circle(x + tamano * 0.5, y, tamano);
+    fill(30);
+    text(tipo, x + tamano * 1.4, y);
+    y += tamano * 1.6;
+  }
 }

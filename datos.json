@@ -1,19 +1,19 @@
 {
   "personas": [
-    {"id": "1", "nombre": "Pedro Silva", "conexiones": [{"tipo": "ideas", "id": "2"}, {"tipo": "procesos", "id": "6"}, {"tipo": "resultados", "id": "15"}]},
-    {"id": "2", "nombre": "Antonieta López", "conexiones": [{"tipo": "ideas", "id": "3"}, {"tipo": "procesos", "id": "7"}, {"tipo": "resultados", "id": "1"}]},
-    {"id": "3", "nombre": "bla03", "conexiones": [{"tipo": "ideas", "id": "4"}, {"tipo": "procesos", "id": "8"}, {"tipo": "resultados", "id": "2"}]},
-    {"id": "4", "nombre": "bla04", "conexiones": [{"tipo": "ideas", "id": "5"}, {"tipo": "procesos", "id": "9"}, {"tipo": "resultados", "id": "3"}]},
-    {"id": "5", "nombre": "bla05", "conexiones": [{"tipo": "ideas", "id": "6"}, {"tipo": "procesos", "id": "10"}, {"tipo": "resultados", "id": "4"}]},
-    {"id": "6", "nombre": "bla06", "conexiones": [{"tipo": "ideas", "id": "7"}, {"tipo": "procesos", "id": "11"}, {"tipo": "resultados", "id": "5"}]},
-    {"id": "7", "nombre": "bla07", "conexiones": [{"tipo": "ideas", "id": "8"}, {"tipo": "procesos", "id": "12"}, {"tipo": "resultados", "id": "6"}]},
-    {"id": "8", "nombre": "bla08", "conexiones": [{"tipo": "ideas", "id": "9"}, {"tipo": "procesos", "id": "13"}, {"tipo": "resultados", "id": "7"}]},
-    {"id": "9", "nombre": "bla09", "conexiones": [{"tipo": "ideas", "id": "10"}, {"tipo": "procesos", "id": "14"}, {"tipo": "resultados", "id": "8"}]},
-    {"id": "10", "nombre": "bla10", "conexiones": [{"tipo": "ideas", "id": "11"}, {"tipo": "procesos", "id": "15"}, {"tipo": "resultados", "id": "9"}]},
-    {"id": "11", "nombre": "bla11", "conexiones": [{"tipo": "ideas", "id": "12"}, {"tipo": "procesos", "id": "1"}, {"tipo": "resultados", "id": "10"}]},
-    {"id": "12", "nombre": "bla12", "conexiones": [{"tipo": "ideas", "id": "13"}, {"tipo": "procesos", "id": "2"}, {"tipo": "resultados", "id": "11"}]},
-    {"id": "13", "nombre": "bla13", "conexiones": [{"tipo": "ideas", "id": "14"}, {"tipo": "procesos", "id": "3"}, {"tipo": "resultados", "id": "12"}]},
-    {"id": "14", "nombre": "bla14", "conexiones": [{"tipo": "ideas", "id": "15"}, {"tipo": "procesos", "id": "4"}, {"tipo": "resultados", "id": "13"}]},
-    {"id": "15", "nombre": "bla15", "conexiones": [{"tipo": "ideas", "id": "1"}, {"tipo": "procesos", "id": "5"}, {"tipo": "resultados", "id": "14"}]}
+    {"id": "1", "nombre": "Pedro Silva", "conexiones": [{"tipo": "ideas", "nombre": "idea01"}, {"tipo": "procesos", "nombre": "proceso01"}, {"tipo": "resultados", "nombre": "resultado01"}]},
+    {"id": "2", "nombre": "Antonieta López", "conexiones": [{"tipo": "ideas", "nombre": "idea02"}, {"tipo": "procesos", "nombre": "proceso02"}, {"tipo": "resultados", "nombre": "resultado02"}]},
+    {"id": "3", "nombre": "bla03", "conexiones": [{"tipo": "ideas", "nombre": "idea03"}, {"tipo": "procesos", "nombre": "proceso03"}, {"tipo": "resultados", "nombre": "resultado03"}]},
+    {"id": "4", "nombre": "bla04", "conexiones": [{"tipo": "ideas", "nombre": "idea04"}, {"tipo": "procesos", "nombre": "proceso04"}, {"tipo": "resultados", "nombre": "resultado04"}]},
+    {"id": "5", "nombre": "bla05", "conexiones": [{"tipo": "ideas", "nombre": "idea05"}, {"tipo": "procesos", "nombre": "proceso05"}, {"tipo": "resultados", "nombre": "resultado05"}]},
+    {"id": "6", "nombre": "bla06", "conexiones": [{"tipo": "ideas", "nombre": "idea06"}, {"tipo": "procesos", "nombre": "proceso06"}, {"tipo": "resultados", "nombre": "resultado06"}]},
+    {"id": "7", "nombre": "bla07", "conexiones": [{"tipo": "ideas", "nombre": "idea07"}, {"tipo": "procesos", "nombre": "proceso07"}, {"tipo": "resultados", "nombre": "resultado07"}]},
+    {"id": "8", "nombre": "bla08", "conexiones": [{"tipo": "ideas", "nombre": "idea08"}, {"tipo": "procesos", "nombre": "proceso08"}, {"tipo": "resultados", "nombre": "resultado08"}]},
+    {"id": "9", "nombre": "bla09", "conexiones": [{"tipo": "ideas", "nombre": "idea09"}, {"tipo": "procesos", "nombre": "proceso09"}, {"tipo": "resultados", "nombre": "resultado09"}]},
+    {"id": "10", "nombre": "bla10", "conexiones": [{"tipo": "ideas", "nombre": "idea10"}, {"tipo": "procesos", "nombre": "proceso10"}, {"tipo": "resultados", "nombre": "resultado10"}]},
+    {"id": "11", "nombre": "bla11", "conexiones": [{"tipo": "ideas", "nombre": "idea11"}, {"tipo": "procesos", "nombre": "proceso11"}, {"tipo": "resultados", "nombre": "resultado11"}]},
+    {"id": "12", "nombre": "bla12", "conexiones": [{"tipo": "ideas", "nombre": "idea12"}, {"tipo": "procesos", "nombre": "proceso12"}, {"tipo": "resultados", "nombre": "resultado12"}]},
+    {"id": "13", "nombre": "bla13", "conexiones": [{"tipo": "ideas", "nombre": "idea13"}, {"tipo": "procesos", "nombre": "proceso13"}, {"tipo": "resultados", "nombre": "resultado13"}]},
+    {"id": "14", "nombre": "bla14", "conexiones": [{"tipo": "ideas", "nombre": "idea14"}, {"tipo": "procesos", "nombre": "proceso14"}, {"tipo": "resultados", "nombre": "resultado14"}]},
+    {"id": "15", "nombre": "bla15", "conexiones": [{"tipo": "ideas", "nombre": "idea15"}, {"tipo": "procesos", "nombre": "proceso15"}, {"tipo": "resultados", "nombre": "resultado15"}]}
   ]
 }

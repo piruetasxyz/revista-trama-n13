@@ -4,7 +4,7 @@
 
 // si no existe una pestaña con este nombre, se usa la primera
 const NOMBRE_PESTANA = 'personas';
-// cada columna contiene el id de la persona elegida para ese tipo
+// cada columna contiene el nombre de la persona elegida para ese tipo
 const TIPOS_CONEXION = ['ideas', 'procesos', 'resultados'];
 
 function doGet() {
@@ -19,8 +19,8 @@ function doGet() {
     .map((fila) => ({
       id: fila[indice('id')].trim(),
       nombre: fila[indice('nombre')].trim(),
-      conexiones: TIPOS_CONEXION.map((tipo) => ({ tipo, id: fila[indice(tipo)].trim() })).filter(
-        (conexion) => conexion.id
+      conexiones: TIPOS_CONEXION.map((tipo) => ({ tipo, nombre: fila[indice(tipo)].trim() })).filter(
+        (conexion) => conexion.nombre
       ),
     }));
 

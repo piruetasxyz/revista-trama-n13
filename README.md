@@ -1,6 +1,6 @@
 # revista-trama-n13
 
-visualización de 15 personas como blobs flotantes, cada una conectada a otras 3 (45 conexiones dirigidas), hecha con [p5.js](https://p5js.org) 2.3.4.
+visualización de 60 personas como blobs flotantes: 15 personas principales, y cada una elige a 3 personas nuevas, una para ideas, otra para procesos y otra para resultados (45 conexiones), hecha con [p5.js](https://p5js.org) 2.3.4.
 
 ## archivos
 
@@ -11,14 +11,15 @@ visualización de 15 personas como blobs flotantes, cada una conectada a otras 3
 
 ## hoja de cálculo
 
-una pestaña llamada `personas`, con una fila por persona:
+una fila por persona (idealmente en una pestaña llamada `personas`; si no existe, se usa la primera):
 
-| id | nombre | color | conexion_1 | conexion_2 | conexion_3 |
-|---|---|---|---|---|---|
-| p01 | persona 1 | #e4572e | p02 | p06 | p15 |
+| id | nombre | ideas | procesos | resultados |
+|---|---|---|---|---|
+| 1 | Pedro Silva | idea01 | proceso01 | resultado01 |
 
-- `conexion_1..3` contienen los `id` de las personas elegidas.
-- `color` es opcional (hex); si está vacío se asigna uno automáticamente.
+- `ideas`, `procesos` y `resultados` contienen el nombre de la persona elegida para cada tipo.
+- cada persona elegida se dibuja como un blob pequeño alrededor de quien la eligió, con el color de su tipo (ver `TIPOS_CONEXION` en `script.js`).
+- los nombres de las personas elegidas aparecen al pasar el mouse por su grupo; para mostrarlos siempre, cambiar `MOSTRAR_TODOS_LOS_NOMBRES` a `true`.
 - la hoja queda privada: solo quienes tienen acceso pueden editarla.
 
 ## conectar la hoja
