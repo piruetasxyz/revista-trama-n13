@@ -4,14 +4,18 @@ const URL_DATOS =
   'https://script.google.com/macros/s/AKfycbxqWYfLyrvu9m4GU6C4HWo9CfF0nmVYJaQqlo1qDYt9MEdbyKAwjbU3mBEpMQwjfFPr/exec';
 const RUTA_RESPALDO = 'datos.json';
 
-// cada persona principal elige a una persona nueva por tipo
+// cada persona principal elige a una persona nueva por tipo.
+// `tipo` es la columna de la hoja; `etiqueta` es el texto que se muestra en la leyenda.
 const TIPOS_CONEXION = [
-  { tipo: 'ideas', color: '#e4572e' },
-  { tipo: 'procesos', color: '#1b998b' },
-  { tipo: 'resultados', color: '#3a5ba0' },
+  { tipo: 'ideas', etiqueta: 'Preguntas', color: '#999999' },
+  { tipo: 'procesos', etiqueta: 'Operaciones', color: '#666666' },
+  { tipo: 'resultados', etiqueta: 'Hallazgos', color: '#191919' },
 ];
-const COLOR_PRINCIPAL = '#2b2b2b';
+const COLOR_PRINCIPAL = '#c35afb';
+const COLOR_LINEAS = '#000000';
 const COLOR_FONDO = '#f4f1ea';
+// fracción del radio que se difumina en el borde de cada círculo
+const DIFUMINADO = 0.35;
 // si es false, los nombres de las personas elegidas solo aparecen al pasar el mouse por su grupo
 const MOSTRAR_TODOS_LOS_NOMBRES = false;
 
@@ -83,7 +87,7 @@ function construir(datos) {
         y: principal.y + sin(anguloElegida) * radio * 3,
       });
       personas.push(elegidaPersona);
-      conexiones.push({ origen: principal, destino: elegidaPersona, color });
+      conexiones.push({ origen: principal, destino: elegidaPersona });
     });
   });
 }
@@ -182,26 +186,29 @@ function actualizar() {
   }
 }
 
+// círculo con borde difuminado: degradado radial del color sólido a transparente.
+// se dibuja directo en el canvas porque p5 no tiene degradados.
+function circuloDifuminado(x, y, r, colorHex, opacidad) {
+  const c = color(colorHex);
+  const rgb = `${red(c)}, ${green(c)}, ${blue(c)}`;
+  const ctx = drawingContext;
+  const degradado = ctx.createRadialGradient(x, y, r * (1 - DIFUMINADO), x, y, r * (1 + DIFUMINADO));
+  degradado.addColorStop(0, `rgba(${rgb}, ${opacidad})`);
+  degradado.addColorStop(1, `rgba(${rgb}, 0)`);
+  ctx.save();
+  ctx.fillStyle = degradado;
+  ctx.beginPath();
+  ctx.arc(x, y, r * (1 + DIFUMINADO), 0, TWO_PI);
+  ctx.fill();
+  ctx.restore();
+}
+
 function dibujarBlob(persona) {
-  const t = millis() * 0.0006;
   const activa = grupoActivo === persona.grupo;
   const atenuada = grupoActivo && !activa;
   const r0 = radioDe(persona) * (activa ? 1.12 : 1);
 
-  noStroke();
-  const relleno = color(persona.color);
-  relleno.setAlpha(atenuada ? 60 : 230);
-  fill(relleno);
-
-  beginShape();
-  const puntos = persona.principal ? 48 : 32;
-  for (let i = 0; i < puntos; i++) {
-    const angulo = (TWO_PI * i) / puntos;
-    const deformacion = noise(persona.semilla + cos(angulo), persona.semilla + sin(angulo), t);
-    const r = r0 * (0.8 + deformacion * 0.4);
-    vertex(persona.x + cos(angulo) * r, persona.y + sin(angulo) * r);
-  }
-  endShape(CLOSE);
+  circuloDifuminado(persona.x, persona.y, r0, persona.color, atenuada ? 0.25 : 0.9);
 
   if (!persona.principal && !MOSTRAR_TODOS_LOS_NOMBRES && !activa) return;
 
@@ -211,9 +218,9 @@ function dibujarBlob(persona) {
   text(persona.nombre, persona.x, persona.y + r0 * 1.15);
 }
 
-function dibujarConexion({ origen, destino, color: colorTipo }) {
+function dibujarConexion({ origen, destino }) {
   const activa = grupoActivo === origen;
-  const trazo = color(colorTipo);
+  const trazo = color(COLOR_LINEAS);
   trazo.setAlpha(grupoActivo && !activa ? 30 : 170);
   stroke(trazo);
   strokeWeight(activa ? 3 : 2);
@@ -226,12 +233,11 @@ function dibujarLeyenda() {
   let y = height - 20 - tamano * 1.6 * (TIPOS_CONEXION.length - 1);
   textSize(tamano);
   textAlign(LEFT, CENTER);
-  for (const { tipo, color } of TIPOS_CONEXION) {
+  for (const { etiqueta, color } of TIPOS_CONEXION) {
+    circuloDifuminado(x + tamano * 0.5, y, tamano * 0.5, color, 0.9);
     noStroke();
-    fill(color);
-    circle(x + tamano * 0.5, y, tamano);
     fill(30);
-    text(tipo, x + tamano * 1.4, y);
+    text(etiqueta, x + tamano * 1.4, y);
     y += tamano * 1.6;
   }
 }

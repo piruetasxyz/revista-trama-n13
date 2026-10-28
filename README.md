@@ -1,6 +1,6 @@
 # revista-trama-n13
 
-visualización de 60 personas como blobs flotantes: 15 personas principales, y cada una elige a 3 personas nuevas, una para ideas, otra para procesos y otra para resultados (45 conexiones), hecha con [p5.js](https://p5js.org) 2.3.4.
+visualización de 60 personas como blobs flotantes: 15 personas principales, y cada una elige a 3 personas nuevas, una para preguntas, otra para operaciones y otra para hallazgos (45 conexiones), hecha con [p5.js](https://p5js.org) 2.3.4.
 
 ## archivos
 
@@ -17,9 +17,10 @@ una fila por persona (idealmente en una pestaña llamada `personas`; si no exist
 |---|---|---|---|---|
 | 1 | Pedro Silva | idea01 | proceso01 | resultado01 |
 
-- `ideas`, `procesos` y `resultados` contienen el nombre de la persona elegida para cada tipo.
+- `ideas`, `procesos` y `resultados` contienen el nombre de la persona elegida para cada tipo. en la leyenda se muestran como Preguntas, Operaciones y Hallazgos.
 - si una celda está vacía, no se dibuja nada: solo aparecen blobs con nombre. lo mismo para filas sin `nombre`.
-- cada persona elegida se dibuja como un blob pequeño alrededor de quien la eligió, con el color de su tipo (ver `TIPOS_CONEXION` en `script.js`).
+- cada persona principal se dibuja como un círculo de bordes difuminados color `#c35afb` (`COLOR_PRINCIPAL`), unida con líneas negras (`COLOR_LINEAS`) a sus elegidas.
+- cada persona elegida se dibuja como un círculo pequeño de bordes difuminados alrededor de quien la eligió, con el color de su tipo (ver `TIPOS_CONEXION` en `script.js`): Preguntas `#999999`, Operaciones `#666666`, Hallazgos `#191919`. el difuminado se ajusta con `DIFUMINADO`.
 - los nombres de las personas elegidas aparecen al pasar el mouse por su grupo; para mostrarlos siempre, cambiar `MOSTRAR_TODOS_LOS_NOMBRES` a `true`.
 - la hoja queda privada: solo quienes tienen acceso pueden editarla.
 
