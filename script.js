@@ -195,12 +195,12 @@ function circuloDifuminado(x, y, r, colorHex, opacidad) {
   const degradado = ctx.createRadialGradient(x, y, r * (1 - DIFUMINADO), x, y, r * (1 + DIFUMINADO));
   degradado.addColorStop(0, `rgba(${rgb}, ${opacidad})`);
   degradado.addColorStop(1, `rgba(${rgb}, 0)`);
-  ctx.save();
+  push();
   ctx.fillStyle = degradado;
   ctx.beginPath();
   ctx.arc(x, y, r * (1 + DIFUMINADO), 0, TWO_PI);
   ctx.fill();
-  ctx.restore();
+  pop();
 }
 
 function dibujarBlob(persona) {
@@ -212,32 +212,39 @@ function dibujarBlob(persona) {
 
   if (!persona.principal && !MOSTRAR_TODOS_LOS_NOMBRES && !activa) return;
 
+  push();
+  noStroke();
   fill(atenuada ? 170 : 30);
   textAlign(CENTER, TOP);
   textSize(max(persona.principal ? 12 : 10, radioDe(persona) * (persona.principal ? 0.4 : 0.6)));
   text(persona.nombre, persona.x, persona.y + r0 * 1.15);
+  pop();
 }
 
 function dibujarConexion({ origen, destino }) {
   const activa = grupoActivo === origen;
   const trazo = color(COLOR_LINEAS);
   trazo.setAlpha(grupoActivo && !activa ? 30 : 170);
+  push();
   stroke(trazo);
   strokeWeight(activa ? 3 : 2);
   line(origen.x, origen.y, destino.x, destino.y);
+  pop();
 }
 
 function dibujarLeyenda() {
   const tamano = max(12, radio * 0.4);
   const x = 20;
   let y = height - 20 - tamano * 1.6 * (TIPOS_CONEXION.length - 1);
-  textSize(tamano);
-  textAlign(LEFT, CENTER);
   for (const { etiqueta, color } of TIPOS_CONEXION) {
     circuloDifuminado(x + tamano * 0.5, y, tamano * 0.5, color, 0.9);
+    push();
     noStroke();
     fill(30);
+    textSize(tamano);
+    textAlign(LEFT, CENTER);
     text(etiqueta, x + tamano * 1.4, y);
+    pop();
     y += tamano * 1.6;
   }
 }
